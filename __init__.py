@@ -6,10 +6,11 @@ bl_info = {
     "version": (1, 0),
     "location": "Node Editor",
     "warning": "",
-    "category": "3D View",
+    "category": "Node Editor",
 }
 
 import bpy
+import rna_keymap_ui
 from bpy.props import BoolProperty
 
 class SwitchNodeEditor(bpy.types.Operator):
@@ -46,8 +47,8 @@ class SwitchGeometryEditor(bpy.types.Operator):
         bpy.context.area.ui_type = 'GeometryNodeTree'
         return {'FINISHED'}
 
-class VIEW3D_MT_NODE_PIE_Menu(bpy.types.Menu):
-    bl_idname = "VIEW3D_MT_NODE_PIE_Menu"
+class NODE_MT_NODE_PIE_Menu(bpy.types.Menu):
+    bl_idname = "NODE_MT_NODE_PIE_Menu"
     bl_label = "Node Editor Pie Menu"
     
 
@@ -123,39 +124,72 @@ class Preferences(bpy.types.AddonPreferences):
         row.prop(self, "enable_pie_menu")
         row = layout.row(align=True)
         row.prop(self, "enable_shortcut")
-   
-def register():
-    bpy.utils.register_class(SwitchNodeEditor)
-    bpy.utils.register_class(SwitchCompositorEditor)
-    bpy.utils.register_class(SwitchWorldEditor)
-    bpy.utils.register_class(SwitchGeometryEditor)
-    bpy.utils.register_class(VIEW3D_MT_NODE_PIE_Menu)
-    bpy.utils.register_class(Preferences)
-    bpy.types.NODE_HT_header.append(draw_switch_buttons)
-    
-    wm = bpy.context.window_manager
-    km = wm.keyconfigs.addon.keymaps.new(name='Node Editor', space_type='NODE_EDITOR')
-    
-    preferences = bpy.context.preferences.addons[__name__].preferences
+        
+        box = layout.box()
+        box.label(text='Hotkey')
+        wm = context.window_manager
+        kc = wm.keyconfigs.user
+        km = kc.keymaps['Node Editor']
+        kmi = km.keymap_items.get('wm.call_menu_pie')
+        box.context_pointer_set("keymap", km)
+        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
 
-    if preferences.enable_pie_menu:
+addon_keymaps = []
+def registerKeymaps():
+    wm = bpy.context.window_manager
+    if wm.keyconfigs.addon:
+        
+        km = wm.keyconfigs.addon.keymaps.get('Node Editor')
+        if not km:
+            km = wm.keyconfigs.addon.keymaps.new(name='Node Editor', space_type='NODE_EDITOR')
+        
         kmi = km.keymap_items.new('wm.call_menu_pie', 'SEMI_COLON', 'PRESS', ctrl=True, alt=True)
-        kmi.properties.name = "VIEW3D_MT_NODE_PIE_Menu"
+        kmi.properties.name = "NODE_MT_NODE_PIE_Menu"
+        addon_keymaps.append((km, kmi))
     
-    if preferences.enable_shortcut:
+
         kmi = km.keymap_items.new('node.switch_to_geometry_editor', 'ONE', 'PRESS')
+        addon_keymaps.append((km, kmi))
+        
         kmi = km.keymap_items.new('node.switch_to_shader_editor', 'TWO', 'PRESS')
+        addon_keymaps.append((km, kmi))
+        
         kmi = km.keymap_items.new('node.switch_to_world_editor', 'THREE', 'PRESS')
+        addon_keymaps.append((km, kmi))
+        
         kmi = km.keymap_items.new('node.switch_to_compositor_editor', 'FOUR', 'PRESS')
+        addon_keymaps.append((km, kmi))
+
+def unregisterKeymaps():
+    for km, kmi in addon_keymaps:
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
+
+classes = (
+    SwitchNodeEditor,
+    SwitchCompositorEditor,
+    SwitchWorldEditor,
+    SwitchGeometryEditor,
+    NODE_MT_NODE_PIE_Menu,
+    Preferences,
+)
+
+def register():
+    from bpy.utils import register_class
+    for cls in classes:
+        register_class(cls)
+    bpy.types.NODE_HT_header.append(draw_switch_buttons)
+    registerKeymaps()
 
 def unregister():
-    bpy.utils.unregister_class(SwitchNodeEditor)
-    bpy.utils.unregister_class(SwitchCompositorEditor)
-    bpy.utils.unregister_class(SwitchWorldEditor)
-    bpy.utils.unregister_class(SwitchGeometryEditor)
-    bpy.utils.unregister_class(VIEW3D_MT_NODE_PIE_Menu)
-    bpy.utils.unregister_class(Preferences)
+    unregisterKeymaps()
+    from bpy.utils import unregister_class
+    for cls in reversed(classes):
+        unregister_class(cls)
+    
     bpy.types.NODE_HT_header.remove(draw_switch_buttons)
+    
+    registerKeymaps()
 
 if __name__ == "__main__":
     register()
