@@ -1,21 +1,20 @@
 # Node Editor Switcher Blender Addon
 
 ## Overview
-Add a pie menu, quick buttons and shorcut for switching between the differents node editors.
+Add a pie menu, quick buttons, and shortcuts for switching between the different node editors.
 
 ## Features
 ### Pie Menu: 
-Accessible in the Node Editor, the pie menu it's a easy way to switch between different node editors with a single click.
+Accessible in the Node Editor, the pie menu is an easy way to switch between different node editors with a single click.
 
 ![alt text](Image/PieMenu.png)
 
-- Default keyboard shortcuts: `To be Define`
+- Default keyboard shortcuts: `To be Defined`
 - You can customize these shortcuts in Blender's keymap settings.
-
 
 ### Quick Buttons: 
 
-The Node Editor buttons are available at the top right of the node editor header and can be disable in the addon preferences.
+The Node Editor buttons are available at the top right of the node editor header and can be disabled in the addon preferences.
 
 ![alt text](Image/QuickButtons.png)
 
@@ -28,14 +27,12 @@ The Node Editor buttons are available at the top right of the node editor header
   - `4`: Compositor Node Editor
 - You can customize these shortcuts in Blender's keymap settings.
 
-
 ## Installation
 To install the Node Editor Pie addon, follow these steps:
 1. Download the `node_editor_pie.zip` file available [here](https://github.com/Victor-IX/NodeEditorSwitcher/releases/latest).
 2. In Blender, go to `Edit > Preferences > Add-ons`.
 3. Click on `Install...` and select the downloaded `node_editor_pie.zip` file.
 4. Enable the addon by ticking the checkbox next to "Node Editor Pie" in the add-ons list.
-
 
 ## Compatibility
 - Blender version: 4.0 and above
