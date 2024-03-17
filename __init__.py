@@ -1,11 +1,10 @@
 bl_info = {
-    "name": "Node Editor Pie",
+    "name": "Node Editor Switcher",
     "author": "Chedeville Victor",
-    "description": "Pie menu and quick button to swith between node editor",
+    "description": "Pie menu and quick access buttons for switching between different node editors",
     "blender": (4, 0, 0),
     "version": (1, 0),
     "location": "Node Editor",
-    "warning": "",
     "category": "Node Editor",
 }
 
@@ -152,8 +151,8 @@ class Preferences(bpy.types.AddonPreferences):
     bl_idname = __name__
 
     enable_button: BoolProperty(
-        name="Quick Button",
-        description="Enable the pie menu to switch between node editor",
+        name="Quick Access Button",
+        description="Enable quick access buttons for switching between different node editors",
         default=True,
     )  # type: ignore
 
