@@ -157,18 +157,6 @@ class Preferences(bpy.types.AddonPreferences):
         default=True,
     )  # type: ignore
 
-    enable_pie_menu: BoolProperty(
-        name="Pie Menu",
-        description="Enable the pie menu to switch between node editor",
-        default=True,
-    )  # type: ignore
-
-    enable_shortcut: BoolProperty(
-        name="Shortcut",
-        description="Enable the shortcut to switch between node editor",
-        default=True,
-    )  # type: ignore
-
     def draw(self, context):
         layout = self.layout
 
