@@ -9,7 +9,7 @@ Accessible in the Node Editor, the pie menu is an easy way to switch between dif
 
 ![alt text](Image/PieMenu.png)
 
-- Default keyboard shortcuts: `To be Defined`
+- Default keyboard shortcuts: `E`
 - You can customize these shortcuts in Blender's keymap settings.
 
 ### Quick Buttons: 

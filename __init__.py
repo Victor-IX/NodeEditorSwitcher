@@ -201,9 +201,7 @@ def registerKeymaps():
                 name="Node Editor", space_type="NODE_EDITOR"
             )
 
-        kmi = km.keymap_items.new(
-            "wm.call_menu_pie", "SEMI_COLON", "PRESS", ctrl=True, alt=True
-        )
+        kmi = km.keymap_items.new("wm.call_menu_pie", "E", "PRESS")
         kmi.properties.name = "NODE_MT_NODE_PIE_Menu"
         addon_keymaps.append((km, kmi))
 
