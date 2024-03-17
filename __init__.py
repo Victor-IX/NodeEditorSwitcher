@@ -120,19 +120,33 @@ class Preferences(bpy.types.AddonPreferences):
 
         row = layout.row(align=True)
         row.prop(self, "enable_button")
-        row = layout.row(align=True)
-        row.prop(self, "enable_pie_menu")
-        row = layout.row(align=True)
-        row.prop(self, "enable_shortcut")
         
         box = layout.box()
         box.label(text='Hotkey')
         wm = context.window_manager
         kc = wm.keyconfigs.user
         km = kc.keymaps['Node Editor']
+        
         kmi = km.keymap_items.get('wm.call_menu_pie')
         box.context_pointer_set("keymap", km)
         rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
+        
+        kmi = km.keymap_items.get('node.switch_to_geometry_editor')
+        box.context_pointer_set("keymap", km)
+        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
+        
+        kmi = km.keymap_items.get('node.switch_to_shader_editor')
+        box.context_pointer_set("keymap", km)
+        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
+        
+        kmi = km.keymap_items.get('node.switch_to_world_editor')
+        box.context_pointer_set("keymap", km)
+        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
+        
+        kmi = km.keymap_items.get('node.switch_to_compositor_editor')
+        box.context_pointer_set("keymap", km)
+        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
+        
 
 addon_keymaps = []
 def registerKeymaps():
