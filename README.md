@@ -1,5 +1,5 @@
 # Node Editor Switcher Blender Addon
-
+![alt text](Image/AddonDemo.gif)
 ## Overview
 Add a pie menu, quick buttons, and shortcuts for switching between the different node editors.
 
