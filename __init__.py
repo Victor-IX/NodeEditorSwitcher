@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Node Editor Switcher",
     "author": "Victor Chedeville",
-    "description": "Pie menu, shortcuts and quick access buttons for switching between different node editors",
+    "description": "Pie menu, shortcuts and buttons to switch between node editors",
     "blender": (4, 0, 0),
     "version": (1, 0),
     "location": "Node Editor",
