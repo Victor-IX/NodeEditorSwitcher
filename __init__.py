@@ -1,13 +1,3 @@
-bl_info = {
-    "name": "Node Editor Switcher",
-    "author": "Victor Chedeville",
-    "description": "Pie menu, shortcuts and buttons to switch between node editors",
-    "blender": (4, 0, 0),
-    "version": (1, 0),
-    "location": "Node Editor",
-    "category": "Node Editor",
-}
-
 import bpy
 import rna_keymap_ui
 from bpy.props import BoolProperty
@@ -148,7 +138,7 @@ def draw_switch_buttons(self, context):
 
 
 class Preferences(bpy.types.AddonPreferences):
-    bl_idname = __name__
+    bl_idname = __package__
 
     enable_button: BoolProperty(
         name="Quick Access Button",
@@ -255,5 +245,5 @@ def unregister():
     registerKeymaps()
 
 
-if __name__ == "__main__":
+if __package__ == "__main__":
     register()
