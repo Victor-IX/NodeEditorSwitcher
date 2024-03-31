@@ -1,0 +1,8 @@
+{
+    "addon_name": "node-editor-switcher",
+    "addon_version": "1.0.2",
+    "files": [
+        "__init__.py",
+        "blender_manifest.toml"
+    ]
+}
