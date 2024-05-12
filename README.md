@@ -34,7 +34,7 @@ To install the Node Editor Pie addon, follow these steps:
 3. Click on `Install...` and select the downloaded `node_editor_pie.zip` file.
 4. Enable the addon by ticking the checkbox next to "Node Editor Pie" in the add-ons list.
 
-## Instalation vesrion >1.0.1
+## Installation version >1.0.1
 Version 1.0.2 and newer are only available on Blender 4.2+ with the [Extension package](https://extensions.blender.org) enabled, and the addon can be installed directly from Blender!
 
 ## Compatibility
