@@ -143,7 +143,7 @@ class Preferences(bpy.types.AddonPreferences):
     enable_button: BoolProperty(
         name="Quick Access Button",
         description="Enable quick access buttons for switching between different node editors",
-        default=True,
+        default=False,
     )  # type: ignore
 
     def draw(self, context):
