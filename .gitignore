@@ -1,4 +1,3 @@
 ﻿*.pyc
 .vscode/
 dist/
-*.blend
