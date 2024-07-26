@@ -65,7 +65,7 @@ class NODE_MT_NODE_PIE_Menu(bpy.types.Menu):
 
 def draw_switch_buttons(self, context):
     layout = self.layout
-    if context.preferences.addons[__name__].preferences.enable_button:
+    if context.preferences.addons[__package__].preferences.enable_button:
         if (
             context.area.ui_type == "ShaderNodeTree"
             and context.space_data.shader_type == "OBJECT"
