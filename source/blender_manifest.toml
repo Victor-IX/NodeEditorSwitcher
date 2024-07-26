@@ -9,7 +9,9 @@ type = "add-on"
 
 website = "https://github.com/Victor-IX/NodeEditorSwitcher"
 
-tags = ["Node", "Pipeline", "User Interface"]
+tags = [
+  "Node", "Pipeline", "User Interface"
+]
 
 blender_version_min = "4.2.0"
 
