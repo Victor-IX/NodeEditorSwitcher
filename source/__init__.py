@@ -146,11 +146,21 @@ class Preferences(bpy.types.AddonPreferences):
         default=False,
     )  # type: ignore
 
+    right_button: BoolProperty(
+        name="Right Button",
+        description="Enable button on the right side of the UI",
+        default=False,
+        update=lambda self, context: update_header_buttons(),
+    )  # type: ignore
+
     def draw(self, context):
         layout = self.layout
 
         row = layout.row(align=True)
         row.prop(self, "enable_button")
+
+        row = layout.row(align=True)
+        row.prop(self, "right_button")
 
         box = layout.box()
         box.label(text="Hotkey")
@@ -224,25 +234,38 @@ classes = (
 )
 
 
+def update_header_buttons():
+    unregister_header_buttons()
+    register_header_buttons()
+
+
+def register_header_buttons():
+    if bpy.context.preferences.addons[__package__].preferences.right_button:
+        bpy.types.NODE_HT_header.prepend(draw_switch_buttons)
+    else:
+        bpy.types.NODE_HT_header.append(draw_switch_buttons)
+
+
+def unregister_header_buttons():
+    bpy.types.NODE_HT_header.remove(draw_switch_buttons)
+
+
 def register():
     from bpy.utils import register_class
 
     for cls in classes:
         register_class(cls)
-    bpy.types.NODE_HT_header.append(draw_switch_buttons)
+    register_header_buttons()
     registerKeymaps()
 
 
 def unregister():
     unregisterKeymaps()
+    unregister_header_buttons()
     from bpy.utils import unregister_class
 
     for cls in reversed(classes):
         unregister_class(cls)
-
-    bpy.types.NODE_HT_header.remove(draw_switch_buttons)
-
-    registerKeymaps()
 
 
 if __package__ == "__main__":
