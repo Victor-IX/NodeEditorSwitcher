@@ -1,6 +1,6 @@
 import bpy
 import rna_keymap_ui
-from bpy.props import BoolProperty
+from bpy.props import BoolProperty, EnumProperty
 
 
 class SwitchNodeEditor(bpy.types.Operator):
@@ -65,7 +65,7 @@ class NODE_MT_NODE_PIE_Menu(bpy.types.Menu):
 
 def draw_switch_buttons(self, context):
     layout = self.layout
-    if context.preferences.addons[__package__].preferences.enable_button:
+    if context.preferences.addons[__package__].preferences.button_location != "OFF":
         if (
             context.area.ui_type == "ShaderNodeTree"
             and context.space_data.shader_type == "OBJECT"
@@ -140,16 +140,15 @@ def draw_switch_buttons(self, context):
 class Preferences(bpy.types.AddonPreferences):
     bl_idname = __package__
 
-    enable_button: BoolProperty(
+    button_location: EnumProperty(
         name="Quick Access Button",
-        description="Enable quick access buttons for switching between different node editors",
-        default=False,
-    )  # type: ignore
-
-    right_button: BoolProperty(
-        name="Right Button",
-        description="Enable button on the right side of the UI",
-        default=False,
+        description="Location of the quick access buttons for switching between different node editors located in the header of the node editor",
+        items=[
+            ("OFF", "Off", "Do not display the button in the header"),
+            ("LEFT", "Left", "Place the button on the left side of the UI"),
+            ("RIGHT", "Right", "Place the button on the right side of the UI"),
+        ],
+        default="OFF",
         update=lambda self, context: update_header_buttons(),
     )  # type: ignore
 
@@ -157,10 +156,7 @@ class Preferences(bpy.types.AddonPreferences):
         layout = self.layout
 
         row = layout.row(align=True)
-        row.prop(self, "enable_button")
-
-        row = layout.row(align=True)
-        row.prop(self, "right_button")
+        row.prop(self, "button_location")
 
         box = layout.box()
         box.label(text="Hotkey")
@@ -218,12 +214,6 @@ def registerKeymaps():
         addon_keymaps.append((km, kmi))
 
 
-def unregisterKeymaps():
-    for km, kmi in addon_keymaps:
-        km.keymap_items.remove(kmi)
-    addon_keymaps.clear()
-
-
 classes = (
     SwitchNodeEditor,
     SwitchCompositorEditor,
@@ -234,13 +224,22 @@ classes = (
 )
 
 
+def unregisterKeymaps():
+    for km, kmi in addon_keymaps:
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
+
+
 def update_header_buttons():
     unregister_header_buttons()
     register_header_buttons()
 
 
 def register_header_buttons():
-    if bpy.context.preferences.addons[__package__].preferences.right_button:
+    if (
+        bpy.context.preferences.addons[__package__].preferences.button_location
+        == "LEFT"
+    ):
         bpy.types.NODE_HT_header.prepend(draw_switch_buttons)
     else:
         bpy.types.NODE_HT_header.append(draw_switch_buttons)
