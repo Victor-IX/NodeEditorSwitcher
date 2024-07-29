@@ -1,6 +1,6 @@
 import bpy
 import rna_keymap_ui
-from bpy.props import BoolProperty, EnumProperty
+from bpy.props import EnumProperty
 
 
 class SwitchNodeEditor(bpy.types.Operator):
