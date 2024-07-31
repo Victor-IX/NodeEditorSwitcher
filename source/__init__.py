@@ -48,11 +48,17 @@ class NODE_MT_NODE_PIE_Menu(bpy.types.Menu):
     bl_label = "Node Editor Pie Menu"
 
     def draw(self, context):
-        layout = self.layout.menu_pie()
-        layout.operator("node.switch_to_shader_editor", text="Shader", icon="NODE_MATERIAL")
-        layout.operator("node.switch_to_world_editor", text="World", icon="WORLD_DATA")
-        layout.operator("node.switch_to_geometry_editor", text="Geometry", icon="GEOMETRY_NODES")
-        layout.operator("node.switch_to_compositor_editor", text="Compositor", icon="NODE_COMPOSITING")
+        pref = context.preferences.addons[__package__].preferences
+        if pref.pie_menu != "OFF":
+            layout = self.layout.menu_pie()
+            if pref.show_material:
+                layout.operator("node.switch_to_shader_editor", text="Shader", icon="NODE_MATERIAL")
+            if pref.show_world:    
+                layout.operator("node.switch_to_world_editor", text="World", icon="WORLD_DATA")
+            if pref.show_geometry_nodes:
+                layout.operator("node.switch_to_geometry_editor", text="Geometry", icon="GEOMETRY_NODES")
+            if pref.show_compositor:
+                layout.operator("node.switch_to_compositor_editor", text="Compositor", icon="NODE_COMPOSITING")
 
 
 def switch_button(row, operator, icon, active=False):
