@@ -1,6 +1,6 @@
 import bpy
 import rna_keymap_ui
-from bpy.props import EnumProperty
+from bpy.props import EnumProperty, BoolProperty
 
 
 class SwitchNodeEditorBase(bpy.types.Operator):
@@ -60,18 +60,23 @@ def switch_button(row, operator, icon, active=False):
 
 
 def draw_switch_buttons(self, context):
-    if context.preferences.addons[__package__].preferences.button_location != "OFF":
+    pref = context.preferences.addons[__package__].preferences
+    if pref.button_location != "OFF":
         layout = self.layout
         row = layout.row(align=True)
         area = context.area
         space_data = context.space_data
 
-        buttons = [
-            ("ShaderNodeTree", "OBJECT", "node.switch_to_shader_editor", "NODE_MATERIAL"),
-            ("ShaderNodeTree", "WORLD", "node.switch_to_world_editor", "WORLD_DATA"),
-            ("GeometryNodeTree", "", "node.switch_to_geometry_editor", "GEOMETRY_NODES"),
-            ("CompositorNodeTree", "", "node.switch_to_compositor_editor", "NODE_COMPOSITING"),
-        ]
+        buttons = []
+
+        if pref.show_material:
+            buttons.append(("ShaderNodeTree", "OBJECT", "node.switch_to_shader_editor", "NODE_MATERIAL"))
+        if pref.show_world:
+            buttons.append(("ShaderNodeTree", "WORLD", "node.switch_to_world_editor", "WORLD_DATA"))
+        if pref.show_geometry_nodes:
+            buttons.append(("GeometryNodeTree", "", "node.switch_to_geometry_editor", "GEOMETRY_NODES"))
+        if pref.show_compositor:
+            buttons.append(("CompositorNodeTree", "", "node.switch_to_compositor_editor", "NODE_COMPOSITING"))
 
         for ui_type, shader_type, operator, icon in buttons:
             active = area.ui_type == ui_type and (shader_type == "" or space_data.shader_type == shader_type)
@@ -93,10 +98,64 @@ class Preferences(bpy.types.AddonPreferences):
         update=lambda self, context: update_header_buttons(),
     )  # type: ignore
 
+    show_material: BoolProperty(
+        name="Material",
+        description="Show the material nodes in the node editor",
+        default=True,
+    )  # type: ignore
+
+    show_world: BoolProperty(
+        name="World",
+        description="Show the world nodes in the node editor",
+        default=True,
+    )  # type: ignore
+
+    show_geometry_nodes: BoolProperty(
+        name="Geometry Nodes",
+        description="Show the geometry nodes in the node editor",
+        default=True,
+    )  # type: ignore
+    
+    show_compositor: BoolProperty(
+        name="Compositor",
+        description="Show the compositor nodes in the node editor",
+        default=True,
+    )  # type: ignore
+    
+    pie_menu: EnumProperty(
+        name="Pie Menu",
+        description="Choose the pie menu to use for switching between different node editors",
+        items=[
+            ("ON", "On", "Enable the pie menu for switching between different node editors"),
+            ("OFF", "Off", "Disable the pie menu for switching between different node editors"),
+        ],
+        default="ON",
+    )  # type: ignore
+
     def draw(self, context):
+        pref = context.preferences.addons[__package__].preferences
+
         layout = self.layout
         layout.row(align=True).prop(self, "button_location")
 
+        if pref.button_location != "OFF":
+            box = layout.box()
+            box.label(text="Show Editor")
+            box.row(align=True).prop(self, "show_material")
+            box.row(align=True).prop(self, "show_world")
+            box.row(align=True).prop(self, "show_geometry_nodes")
+            box.row(align=True).prop(self, "show_compositor")
+
+        layout.row().prop(self, "pie_menu")
+        
+        if pref.pie_menu != "OFF":
+            box = layout.box()
+            box.label(text="Show Editor")
+            box.row(align=True).prop(self, "show_material")
+            box.row(align=True).prop(self, "show_world")
+            box.row(align=True).prop(self, "show_geometry_nodes")
+            box.row(align=True).prop(self, "show_compositor")
+        
         box = layout.box()
         box.label(text="Hotkey")
         wm = context.window_manager
