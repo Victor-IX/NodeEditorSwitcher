@@ -31,6 +31,13 @@ class SwitchWorldEditor(SwitchNodeEditorBase):
     shader_type = "WORLD"
 
 
+class SwitchLineStyleEditor(SwitchNodeEditorBase):
+    bl_idname = "node.switch_to_linestyle_editor"
+    bl_label = "Switch to Line Style Editor"
+    ui_type = "ShaderNodeTree"
+    shader_type = "LINESTYLE"
+
+
 class SwitchCompositorEditor(SwitchNodeEditorBase):
     bl_idname = "node.switch_to_compositor_editor"
     bl_label = "Switch to Compositor Editor"
@@ -53,12 +60,14 @@ class NODE_MT_NODE_PIE_Menu(bpy.types.Menu):
             layout = self.layout.menu_pie()
             if pref.show_material:
                 layout.operator("node.switch_to_shader_editor", text="Shader", icon="NODE_MATERIAL")
-            if pref.show_world:    
+            if pref.show_world:
                 layout.operator("node.switch_to_world_editor", text="World", icon="WORLD_DATA")
             if pref.show_geometry_nodes:
                 layout.operator("node.switch_to_geometry_editor", text="Geometry", icon="GEOMETRY_NODES")
             if pref.show_compositor:
                 layout.operator("node.switch_to_compositor_editor", text="Compositor", icon="NODE_COMPOSITING")
+            if pref.show_line_style:
+                layout.operator("node.switch_to_linestyle_editor", text="Line Style", icon="LINE_DATA")
 
 
 def switch_button(row, operator, icon, active=False):
@@ -83,6 +92,8 @@ def draw_switch_buttons(self, context):
             buttons.append(("GeometryNodeTree", "", "node.switch_to_geometry_editor", "GEOMETRY_NODES"))
         if pref.show_compositor:
             buttons.append(("CompositorNodeTree", "", "node.switch_to_compositor_editor", "NODE_COMPOSITING"))
+        if pref.show_line_style:
+            buttons.append(("ShaderNodeTree", "LINE_DATA", "node.switch_to_linestyle_editor", "LINE_DATA"))
 
         for ui_type, shader_type, operator, icon in buttons:
             active = area.ui_type == ui_type and (shader_type == "" or space_data.shader_type == shader_type)
@@ -116,18 +127,24 @@ class Preferences(bpy.types.AddonPreferences):
         default=True,
     )  # type: ignore
 
+    show_line_style: BoolProperty(
+        name="Line Style",
+        description="Show the line style nodes in the node editor",
+        default=False,
+    )  # type: ignore
+
     show_geometry_nodes: BoolProperty(
         name="Geometry Nodes",
         description="Show the geometry nodes in the node editor",
         default=True,
     )  # type: ignore
-    
+
     show_compositor: BoolProperty(
         name="Compositor",
         description="Show the compositor nodes in the node editor",
         default=True,
     )  # type: ignore
-    
+
     pie_menu: EnumProperty(
         name="Pie Menu",
         description="Choose the pie menu to use for switching between different node editors",
@@ -151,9 +168,10 @@ class Preferences(bpy.types.AddonPreferences):
             box.row(align=True).prop(self, "show_world")
             box.row(align=True).prop(self, "show_geometry_nodes")
             box.row(align=True).prop(self, "show_compositor")
+            box.row(align=True).prop(self, "show_line_style")
 
         layout.row().prop(self, "pie_menu")
-        
+
         if pref.pie_menu != "OFF":
             box = layout.box()
             box.label(text="Show Editor")
@@ -161,7 +179,8 @@ class Preferences(bpy.types.AddonPreferences):
             box.row(align=True).prop(self, "show_world")
             box.row(align=True).prop(self, "show_geometry_nodes")
             box.row(align=True).prop(self, "show_compositor")
-        
+            box.row(align=True).prop(self, "show_line_style")
+
         box = layout.box()
         box.label(text="Hotkey")
         wm = context.window_manager
@@ -174,6 +193,7 @@ class Preferences(bpy.types.AddonPreferences):
             "node.switch_to_shader_editor",
             "node.switch_to_world_editor",
             "node.switch_to_compositor_editor",
+            "node.switch_to_linestyle_editor",
         ]:
             kmi = km.keymap_items.get(keymap)
             box.context_pointer_set("keymap", km)
@@ -196,6 +216,7 @@ def registerKeymaps():
             ("TWO", "node.switch_to_shader_editor"),
             ("THREE", "node.switch_to_world_editor"),
             ("FOUR", "node.switch_to_compositor_editor"),
+            ("FIVE", "node.switch_to_linestyle_editor"),
         ]:
             kmi = km.keymap_items.new(operator, key, "PRESS")
             if operator == "wm.call_menu_pie":
@@ -207,6 +228,7 @@ classes = (
     SwitchNodeEditor,
     SwitchCompositorEditor,
     SwitchWorldEditor,
+    SwitchLineStyleEditor,
     SwitchGeometryEditor,
     NODE_MT_NODE_PIE_Menu,
     Preferences,
