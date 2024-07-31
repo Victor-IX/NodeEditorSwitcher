@@ -3,42 +3,44 @@ import rna_keymap_ui
 from bpy.props import EnumProperty
 
 
-class SwitchNodeEditor(bpy.types.Operator):
+class SwitchNodeEditorBase(bpy.types.Operator):
+    bl_idname = ""
+    bl_label = ""
+
+    ui_type: str
+    shader_type: str = ""
+
+    def execute(self, context):
+        bpy.context.area.ui_type = self.ui_type
+        if self.shader_type:
+            context.space_data.shader_type = self.shader_type
+        return {"FINISHED"}
+
+
+class SwitchNodeEditor(SwitchNodeEditorBase):
     bl_idname = "node.switch_to_shader_editor"
     bl_label = "Switch to Shader Editor"
-
-    def execute(self, context):
-        bpy.context.area.ui_type = "ShaderNodeTree"
-        context.space_data.shader_type = "OBJECT"
-        return {"FINISHED"}
+    ui_type = "ShaderNodeTree"
+    shader_type = "OBJECT"
 
 
-class SwitchWorldEditor(bpy.types.Operator):
+class SwitchWorldEditor(SwitchNodeEditorBase):
     bl_idname = "node.switch_to_world_editor"
     bl_label = "Switch to World Editor"
-
-    def execute(self, context):
-        bpy.context.area.ui_type = "ShaderNodeTree"
-        context.space_data.shader_type = "WORLD"
-        return {"FINISHED"}
+    ui_type = "ShaderNodeTree"
+    shader_type = "WORLD"
 
 
-class SwitchCompositorEditor(bpy.types.Operator):
+class SwitchCompositorEditor(SwitchNodeEditorBase):
     bl_idname = "node.switch_to_compositor_editor"
     bl_label = "Switch to Compositor Editor"
-
-    def execute(self, context):
-        bpy.context.area.ui_type = "CompositorNodeTree"
-        return {"FINISHED"}
+    ui_type = "CompositorNodeTree"
 
 
-class SwitchGeometryEditor(bpy.types.Operator):
+class SwitchGeometryEditor(SwitchNodeEditorBase):
     bl_idname = "node.switch_to_geometry_editor"
     bl_label = "Switch to Geometry Editor"
-
-    def execute(self, context):
-        bpy.context.area.ui_type = "GeometryNodeTree"
-        return {"FINISHED"}
+    ui_type = "GeometryNodeTree"
 
 
 class NODE_MT_NODE_PIE_Menu(bpy.types.Menu):
@@ -46,95 +48,34 @@ class NODE_MT_NODE_PIE_Menu(bpy.types.Menu):
     bl_label = "Node Editor Pie Menu"
 
     def draw(self, context):
-        layout = self.layout
-        pie = layout.menu_pie()
+        layout = self.layout.menu_pie()
+        layout.operator("node.switch_to_shader_editor", text="Shader", icon="NODE_MATERIAL")
+        layout.operator("node.switch_to_world_editor", text="World", icon="WORLD_DATA")
+        layout.operator("node.switch_to_geometry_editor", text="Geometry", icon="GEOMETRY_NODES")
+        layout.operator("node.switch_to_compositor_editor", text="Compositor", icon="NODE_COMPOSITING")
 
-        pie.operator(
-            "node.switch_to_shader_editor", text="Shader", icon="NODE_MATERIAL"
-        )
-        pie.operator("node.switch_to_world_editor", text="World", icon="WORLD_DATA")
-        pie.operator(
-            "node.switch_to_geometry_editor", text="Geometry", icon="GEOMETRY_NODES"
-        )
-        pie.operator(
-            "node.switch_to_compositor_editor",
-            text="Compositor",
-            icon="NODE_COMPOSITING",
-        )
+
+def switch_button(row, operator, icon, active=False):
+    return row.operator(operator, text="", icon=icon, depress=active)
 
 
 def draw_switch_buttons(self, context):
-    layout = self.layout
     if context.preferences.addons[__package__].preferences.button_location != "OFF":
-        if (
-            context.area.ui_type == "ShaderNodeTree"
-            and context.space_data.shader_type == "OBJECT"
-        ):
-            row = layout.row(align=True)
-            row.operator(
-                "node.switch_to_geometry_editor", text="", icon="GEOMETRY_NODES"
-            )
-            row.operator(
-                "node.switch_to_shader_editor",
-                text="",
-                icon="NODE_MATERIAL",
-                emboss=True,
-                depress=True,
-            )
-            row.operator("node.switch_to_world_editor", text="", icon="WORLD_DATA")
-            row.operator(
-                "node.switch_to_compositor_editor", text="", icon="NODE_COMPOSITING"
-            )
+        layout = self.layout
+        row = layout.row(align=True)
+        area = context.area
+        space_data = context.space_data
 
-        if (
-            context.area.ui_type == "ShaderNodeTree"
-            and context.space_data.shader_type == "WORLD"
-        ):
-            row = layout.row(align=True)
-            row.operator(
-                "node.switch_to_geometry_editor", text="", icon="GEOMETRY_NODES"
-            )
-            row.operator("node.switch_to_shader_editor", text="", icon="NODE_MATERIAL")
-            row.operator(
-                "node.switch_to_world_editor",
-                text="",
-                icon="WORLD_DATA",
-                emboss=True,
-                depress=True,
-            )
-            row.operator(
-                "node.switch_to_compositor_editor", text="", icon="NODE_COMPOSITING"
-            )
+        buttons = [
+            ("ShaderNodeTree", "OBJECT", "node.switch_to_shader_editor", "NODE_MATERIAL"),
+            ("ShaderNodeTree", "WORLD", "node.switch_to_world_editor", "WORLD_DATA"),
+            ("GeometryNodeTree", "", "node.switch_to_geometry_editor", "GEOMETRY_NODES"),
+            ("CompositorNodeTree", "", "node.switch_to_compositor_editor", "NODE_COMPOSITING"),
+        ]
 
-        if context.area.ui_type == "GeometryNodeTree":
-            row = layout.row(align=True)
-            row.operator(
-                "node.switch_to_geometry_editor",
-                text="",
-                icon="GEOMETRY_NODES",
-                emboss=True,
-                depress=True,
-            )
-            row.operator("node.switch_to_shader_editor", text="", icon="NODE_MATERIAL")
-            row.operator("node.switch_to_world_editor", text="", icon="WORLD_DATA")
-            row.operator(
-                "node.switch_to_compositor_editor", text="", icon="NODE_COMPOSITING"
-            )
-
-        if context.area.ui_type == "CompositorNodeTree":
-            row = layout.row(align=True)
-            row.operator(
-                "node.switch_to_geometry_editor", text="", icon="GEOMETRY_NODES"
-            )
-            row.operator("node.switch_to_shader_editor", text="", icon="NODE_MATERIAL")
-            row.operator("node.switch_to_world_editor", text="", icon="WORLD_DATA")
-            row.operator(
-                "node.switch_to_compositor_editor",
-                text="",
-                icon="NODE_COMPOSITING",
-                emboss=True,
-                depress=True,
-            )
+        for ui_type, shader_type, operator, icon in buttons:
+            active = area.ui_type == ui_type and (shader_type == "" or space_data.shader_type == shader_type)
+            switch_button(row, operator, icon, active)
 
 
 class Preferences(bpy.types.AddonPreferences):
@@ -154,9 +95,7 @@ class Preferences(bpy.types.AddonPreferences):
 
     def draw(self, context):
         layout = self.layout
-
-        row = layout.row(align=True)
-        row.prop(self, "button_location")
+        layout.row(align=True).prop(self, "button_location")
 
         box = layout.box()
         box.label(text="Hotkey")
@@ -164,25 +103,16 @@ class Preferences(bpy.types.AddonPreferences):
         kc = wm.keyconfigs.user
         km = kc.keymaps["Node Editor"]
 
-        kmi = km.keymap_items.get("wm.call_menu_pie")
-        box.context_pointer_set("keymap", km)
-        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
-
-        kmi = km.keymap_items.get("node.switch_to_geometry_editor")
-        box.context_pointer_set("keymap", km)
-        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
-
-        kmi = km.keymap_items.get("node.switch_to_shader_editor")
-        box.context_pointer_set("keymap", km)
-        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
-
-        kmi = km.keymap_items.get("node.switch_to_world_editor")
-        box.context_pointer_set("keymap", km)
-        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
-
-        kmi = km.keymap_items.get("node.switch_to_compositor_editor")
-        box.context_pointer_set("keymap", km)
-        rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
+        for keymap in [
+            "wm.call_menu_pie",
+            "node.switch_to_geometry_editor",
+            "node.switch_to_shader_editor",
+            "node.switch_to_world_editor",
+            "node.switch_to_compositor_editor",
+        ]:
+            kmi = km.keymap_items.get(keymap)
+            box.context_pointer_set("keymap", km)
+            rna_keymap_ui.draw_kmi([], kc, km, kmi, box, 0)
 
 
 addon_keymaps = []
@@ -193,25 +123,19 @@ def registerKeymaps():
     if wm.keyconfigs.addon:
         km = wm.keyconfigs.addon.keymaps.get("Node Editor")
         if not km:
-            km = wm.keyconfigs.addon.keymaps.new(
-                name="Node Editor", space_type="NODE_EDITOR"
-            )
+            km = wm.keyconfigs.addon.keymaps.new(name="Node Editor", space_type="NODE_EDITOR")
 
-        kmi = km.keymap_items.new("wm.call_menu_pie", "E", "PRESS")
-        kmi.properties.name = "NODE_MT_NODE_PIE_Menu"
-        addon_keymaps.append((km, kmi))
-
-        kmi = km.keymap_items.new("node.switch_to_geometry_editor", "ONE", "PRESS")
-        addon_keymaps.append((km, kmi))
-
-        kmi = km.keymap_items.new("node.switch_to_shader_editor", "TWO", "PRESS")
-        addon_keymaps.append((km, kmi))
-
-        kmi = km.keymap_items.new("node.switch_to_world_editor", "THREE", "PRESS")
-        addon_keymaps.append((km, kmi))
-
-        kmi = km.keymap_items.new("node.switch_to_compositor_editor", "FOUR", "PRESS")
-        addon_keymaps.append((km, kmi))
+        for key, operator in [
+            ("E", "wm.call_menu_pie"),
+            ("ONE", "node.switch_to_geometry_editor"),
+            ("TWO", "node.switch_to_shader_editor"),
+            ("THREE", "node.switch_to_world_editor"),
+            ("FOUR", "node.switch_to_compositor_editor"),
+        ]:
+            kmi = km.keymap_items.new(operator, key, "PRESS")
+            if operator == "wm.call_menu_pie":
+                kmi.properties.name = "NODE_MT_NODE_PIE_Menu"
+            addon_keymaps.append((km, kmi))
 
 
 classes = (
@@ -236,10 +160,7 @@ def update_header_buttons():
 
 
 def register_header_buttons():
-    if (
-        bpy.context.preferences.addons[__package__].preferences.button_location
-        == "LEFT"
-    ):
+    if bpy.context.preferences.addons[__package__].preferences.button_location == "LEFT":
         bpy.types.NODE_HT_header.prepend(draw_switch_buttons)
     else:
         bpy.types.NODE_HT_header.append(draw_switch_buttons)
@@ -267,5 +188,5 @@ def unregister():
         unregister_class(cls)
 
 
-if __package__ == "__main__":
+if __name__ == "__main__":
     register()
